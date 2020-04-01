@@ -1,0 +1,246 @@
+{% extends "leave/base.html" %}
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+        {% block container %}
+            <div class="row">
+                <div class="col-md-12">
+                    <h3>Applications</h3>
+                    <ol class="breadcrumb">
+                        <li>
+                            <a href="{% url 'index' %}">Home</a>
+                        </li>
+                        <li class="active">Applications</li>
+                    </ol>
+
+                    <div class="pull-left">
+                        {% if applications.has_other_pages %}
+                        {% bootstrap_pagination applications %}
+                        {% endif %}
+                    </div>
+
+                    <div class="pull-right">
+                        <br>
+                        <div class="btn-group">
+                                <a class="btn btn-default {% if status == 6 %}active{% endif %}" href="{% url 'applications' 'all' %}">All</a>
+                                <a class="btn btn-default {% if status == 1 %}active{% endif %}" href="{% url 'applications' 'pending' %}">Pending</a>
+                                <a class="btn btn-default {% if status == 2 %}active{% endif %}" href="{% url 'applications' 'processing' %}">Processing</a>
+                                <a class="btn btn-default {% if status == 3 %}active{% endif %}" href="{% url 'applications' 'approved' %}">Approved</a>
+                                <a class="btn btn-default {% if status == 4 %}active{% endif %}" href="{% url 'applications' 'rejected' %}">Rejected</a>
+                                <a class="btn btn-default {% if status == 5 %}active{% endif %}" href="{% url 'applications' 'cancelled' %}">Cancelled</a>
+                                <button class="btn btn-default" id="filter">Filter <i class="glyphicon glyphicon-chevron-down"></i></button>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div style="padding:10px; display:none;" id="filter-list" class="well pull-right">
+                                <form action="" method="GET" class="form-inline" role="form">
+                                
+                                    <div class="form-group">
+                                        <label class="sr-only" for="">Year</label>
+                                        <input type="text" style="width:100px;" class="form-control" id="filter-year" placeholder="Year">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="sr-only" for="">Month</label>
+
+                                        <input type="text" style="width:100px;" class="form-control" id="filter-month" placeholder="Month" disabled="disabled">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="sr-only" for="">Day</label>
+                                        <input type="text" style="width:100px;" class="form-control" id="filter-day" placeholder="Day" disabled="disabled">
+                                    </div>
+
+                                    <button type="button" class="btn btn-default" id="btn-update-filter"><i class="glyphicon glyphicon-filter"></i> Update Filter</button>
+                                </form>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p>&nbsp;</p>
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Time Applied</th>
+                                <th>Emp. Code</th>
+                                <th>Emp. Name</th>
+                                <th>Application Type</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Application Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% if applications %}
+                            {% for application in applications %}
+                            <tr>
+
+                                <td>{{ forloop.counter0|add:applications.start_index}} </td>
+                                <td>{{ application.time_generated }}</td>
+                                <td>{{ application.employee.code }}</td>
+                                <td>{{ application.employee.name }}</td>
+                                <td>
+                                     {{ application.toText }}
+                                </td>
+                               
+                                <td>{% if application.date_from %} 
+                                            {{ application.date_from }}
+                                    {% else %}
+                                            NA
+                                    {% endif %}
+                                </td>
+                                <td>{% if application.date_to %} 
+                                            {{ application.date_to }}
+                                    {% else %}
+                                            NA
+                                    {% endif %}
+                                </td>
+                        
+                                <td>{{ application.get_status_display|title }}</td>
+                                <td><a class="btn btn-default btn-xs" href="{% url 'details' application.pk %}"><i class="glyphicon glyphicon-stats"></i> &nbsp;View Details</a></td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                        <tr><td colspan="9">No applications yet.</td></tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+     
+        {% endblock container %}
+
+
+       
+{% block script %}
+ <script src="{% static 'leave/js/moment.js' %}" ></script>
+        <script>
+            $(function(){
+                $('#applications').addClass('active');
+            });
+
+            var current_url = "{{current_url}}";
+
+            $(function() {
+                $('#filter').on('click', function(event){
+                    event.preventDefault();
+
+                    if($('#filter-list').is(':visible')){
+                        $('#filter-list').fadeOut();
+                        $('#filter').html('Filter <i class="glyphicon glyphicon-chevron-down"></i>');
+                    }else{
+                        $('#filter-list').fadeIn();
+                        $('#filter').html('Filter <i class="glyphicon glyphicon-chevron-up"></i>');
+                    }
+                });
+
+
+
+                var activateYear = function(){
+                    $('#filter-year').datepicker({
+                         startView: 1,
+                         minViewMode: 2,
+                         format: "yyyy",
+                         startDate: "2013",
+                         endDate: "today",
+                    });
+
+                    $('#filter-year').datepicker().on('changeDate', function(e) {
+                        year = $('#filter-year').val();
+
+                        if(year!=''){
+                            $('#filter-month').val('');
+                            $('#filter-day').val('');
+                            activateMonth(year);
+                            $('#filter-month').attr('disabled', false)
+                            $('#filter-day').val('').attr('disabled', true);
+                        }else{
+                            deactivateMonth();
+                            $('#filter-month').val('').attr('disabled', true);
+                        }
+
+                    });
+
+                    if($('#filter-year').val()){
+                        activateMonth($('#filter-year').val());
+                    }
+
+                };
+
+                var activateMonth = function(year){
+                    deactivateMonth();
+                    $('#filter-month').datepicker({
+                        minViewMode: 1,
+                        format: "mm/yyyy",
+                        startDate: moment(year, "YYYY").format("01/YYYY"),
+                        endDate: moment(year, "YYYY").format("12/YYYY"),
+                    });
+
+                    $('#filter-month').datepicker().on('changeDate', function(e) {
+                        month = $('#filter-month').val();
+
+                        if(month!=''){
+                            $('#filter-day').val('');
+                            activateDay(month);
+                            $('#filter-day').attr('disabled', false)
+                        }else{
+                            deactivateDay();
+                            $('#filter-day').val('').attr('disabled', true);
+                        }
+
+                    });
+
+                    if($('#filter-month').val()){
+                        activateDay($('#filter-month').val());
+                    }
+                };
+
+                var activateDay = function(month){
+                    deactivateDay();
+                    $('#filter-day').datepicker({
+                        format: "dd/mm/yyyy",
+                        startDate: moment('01/'+month, "DD/MM/YYYY").format("DD/MM/YYYY"),
+                        endDate: moment('01/'+month, "DD/MM/YYYY").endOf('month').format("DD/MM/YYYY"),
+                    });
+                };
+
+                var deactivateMonth = function(){
+                    $('#filter-month').datepicker('remove');
+                };
+
+                var deactivateDay = function(){
+                    $('#filter-day').datepicker('remove');
+                };
+
+                activateYear();
+
+
+                $('#btn-update-filter').on('click', function(event) {
+                    event.preventDefault();
+                    var day = $('#filter-day').val(),
+                        month = $('#filter-month').val(),
+                        year = $('#filter-year').val();
+
+                    if (day) {
+                        var date = moment(day, "DD/MM/YYYY").format("YYYY-MM-DD");
+                        window.location.assign(current_url+date);
+                    } else if (month) {
+                        var date = moment(month, "MM/YYYY").format("YYYY-MM");
+                        window.location.assign(current_url+date);
+                    } else if (year) {
+                        var date = moment(year, "YYYY").format("YYYY");
+                        window.location.assign(current_url+date);
+                    } else {
+                        window.location.assign(current_url);
+                    }
+                });
+
+            });
+        </script>
+        {% endblock script %}

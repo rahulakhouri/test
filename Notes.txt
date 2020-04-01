@@ -1,0 +1,93 @@
+Notes by Saneem:
+	* Change dd/mm/yyyy. (Change in backend, frontend is easy.)
+	* Change Reason field to Purpose (Should change in database schema) -Done
+	* Only Earned Leave in Credit Leave application
+
+	* In Credit, change Number of Leaves to "Number of Days"
+	* Add Help link, with a single page in templates (common for all users, change content by checking usertype.)
+
+	* Add Employee Code in Emp. Search.
+	* In Credit, change Number of Leaves to "Number of Days" -Done
+
+	* Add employee code in Dept. New form
+
+	*Suggestion: Allow Est Office to add notes even after Start Processing is clicked. We can remove the current Add Notes option before clicking Start Processing as it doesn't make sense.
+
+	* Adding New Employee should need admin approval.
+
+
+Data Entry:
+	* Filter by E.code/Name
+	* Activity Log -Done
+	* Show current leave
+	* Add employees- Done
+Make sure reload doesn't result in duplicate actions
+
+No.of leaves -> days -Done
+Leaves -> leave -Done
+HOD -> Section Head -Done
+Sent Applications -> Application History -Done
+Employee details tab -Done
+Reason -> Purpose -Done
+Check alert message on Approve
+
+Section Head
+	
+	*Date format to dd/mm/yyyy
+	*Display balance leave (Ajax)
+
+
+Application Details
+	*Processing completed on -Done
+	*Approved From ,Approved Till -Done
+	
+Print 
+	*Save as Pdf
+	*Current EL balance -Done
+	*Current HPL balance -Done
+
+
+* Move dataentry to Est. Office. -Done
+* Approval by DR for all dataentry. - Done
+* Department -> Add function to credit leave. -Done
+* Usertypes: Dept, EST1 & EST 2, DR
+* Cancel Application Workflow. - Done
+* EST admin 
+* Current status/History to employee email
+* Option to change password
+* Leave Credit - Done
+* Online Help/Manual
+
+
+Notes:
+*Home page: About the software
+	Working model,
+	Authors
+	License, TOS
+
+*Inside Login:
+	Head:
+		Help/How-To
+		Features
+
+
+
+Logins:
+estoffice
+estadmin
+estdr
+section-heads(csed, med, ..)
+
+Approval By DR *Important. -Done
+
+
+-------More works to do--------
+
+Annual/ custom dates report
+Prefix/Sufix
+Update application form
+Report of joining
+Credit/debit filter
+Show applicaton no in Dr view
+Initial balance when adding new employee
+Special provision

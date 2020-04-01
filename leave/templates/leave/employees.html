@@ -1,0 +1,190 @@
+{% extends "leave/base.html" %}
+{% load bootstrap3 %}
+{% load staticfiles %}
+        {% block container %}
+            <div class="row">
+                <div class="col-md-12">
+                	<div class="row">
+                        <div class="col-md-6">
+                            <h3>Credit/Debit Leave</h3>
+                        </div>
+                        {% if messages %}
+                        <div class="col-md-6">
+                            {% for message in messages %}
+                            {% bootstrap_messages message %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <ol class="breadcrumb">
+                        <li>
+                            <a href="{% url 'index' %}">Home</a>
+                        </li>
+                        <li class="active">Credit/Debit Leave</li>
+                    </ol>
+
+                    <form action="{% url 'manage_leave' %}" method="POST" role="form" id="main-form">
+                        <div class="modal fade" id="modal-leave">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                        <h4 class="modal-title">Credit/Debit Leave</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div id="leave-text"></div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                   <label>Leave Type</label> 
+                                                    <div class="btn-group" data-toggle="buttons">
+                                                        <label class="btn btn-default">
+                                                            <input type="radio" name="leave_type" value="1" required> Earned Leave
+                                                        </label>
+                                                        <label class="btn btn-default">
+                                                            <input type="radio" name="leave_type" value="2" required> Half Pay Leave
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                   <label>Action Type</label> 
+                                                    <div class="btn-group" data-toggle="buttons">
+                                                        <label class="btn btn-default">
+                                                            <input type="radio" name="action_type" value="1" required> Credit Leave
+                                                        </label>
+                                                        <label class="btn btn-default">
+                                                            <input type="radio" name="action_type" value="-1" required> Debit Leave
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="count">Number of leaves</label>
+                                                    <input type="text" name="count" id="count" class="form-control" value="" required placeholder="Number of leaves" >
+                                                </div>
+                                                  <div class="form-group">
+                                                <label for="note">Notes</label>
+                                                <textarea form="main-form" class="form-control" rows="3" id="note" name="note" placeholder="Add a brief note on what is being done."></textarea>
+                                            </div>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="glyphicon glyphicon-ban-circle"></i>  Cancel</button>
+                                        <button type="submit" class="btn btn-info"><i class="glyphicon glyphicon-ok"></i> Confirm Action</button>
+                                    </div>
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal-dialog -->
+                        </div><!-- /.modal -->
+
+                        {% csrf_token %}
+                        
+                        <p>Select the employee(s) from the table to Credit/Debit leaves. Then click on the button below.</p>
+
+                        <a class="btn btn-info btn-lg" data-toggle="modal" href='#modal-leave'><i class="glyphicon glyphicon-stats"></i> Credit/Debit Leave</a>
+
+
+                		<br><br>
+                		<table class="table table-hover table-striped">
+                			<thead>
+                				<tr>
+                					<th class="text-center"><small>Select All</small><br><input type="checkbox" data-state="0"  id="select-all"></th>
+                					<th>Emp. Code</th>
+                					<th>Emp. Name</th>
+                					<th>Dept.</th>
+                					<th>Earned L. Bal.</th>
+                					<th>Half Pay L. Bal.</th>
+                				</tr>
+                			</thead>
+                			<tbody id="table-entries">
+                				<tr>
+                					<td colspan="7">No entries loaded.</td>
+                				</tr>
+                			</tbody>
+                		</table>
+                		
+                	</form>
+                	
+                </div>
+            </div>
+        {% endblock container %}
+
+        {% block script %}
+        <script>
+             $(function(){
+                $('#employees').addClass('active');
+            });
+
+        	var json = {{employees|safe}};
+        	var employees = [];
+
+        	json.forEach(function(entry){
+        		var employee = {
+        			"pk" : entry.pk,
+        			"name" : entry.name,
+        			"dept" : entry.dept,
+        			"dept_value" :entry.dept_value,
+        			"code" : entry.code,
+        			"el_bal" : entry.earned_balance,
+        			"hpl_bal" : entry.hp_balance,
+         			"edit_url" : entry.edit_url
+        		}
+
+        		employees.push(employee);
+        	});
+
+
+        	var loadTable = function(items){
+        		$('#table-entries').html('');
+        		items.forEach(function(item){
+        			$('#table-entries').append('<tr><td class="text-center"><input name="check[]" value="'+item.pk+'" type="checkbox" data-id="'+item.pk+'" class="check"></td><td>'+item.code+'</td><td>'+item.name+'</td><td>'+item.dept+'</td><td>'+item.el_bal+'</td><td>'+item.hpl_bal+'</td></tr>');
+        		});
+        	}
+            $('#select-all').prop('checked', false);
+
+        	$(function() {
+        		loadTable(employees);
+
+
+                $('#select-all').on('click', function() {
+                    if ($(this).data('state') == '0') {
+                        $('.check').prop('checked', true);
+                        $(this).data('state', 1);
+                    } else {
+                        $('.check').prop('checked', false);
+                        $(this).data('state', 0);
+                    }
+                });
+
+
+                $('#table-entries').click(function(e) {
+                    var $target = $(e.target);
+                    if ($target.hasClass("check")) {
+                        $('#select-all').prop('checked', false);
+                        $('#select-all').data('state', 0);
+                    }
+                });
+
+
+
+                $('#main-form').submit(function(event) {
+                    if(isNaN($('#count').val())){
+                        $('#count').parents(".form-group").addClass('has-error');
+                        return false;
+                    }
+
+                    $('#count').parents(".form-group").removeClass('has-error');
+                    return true;
+                });
+        	});
+
+
+
+
+
+        </script>
+        {% endblock script %}

@@ -1,0 +1,141 @@
+{% extends "leave/base.html" %}
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+    {% block container %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3>Employee Details</h3>
+                        </div>
+                        {% if messages %}
+                        <div class="col-md-6">
+                            {% for message in messages %}
+                            {% bootstrap_messages message %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <ol class="breadcrumb">
+                        <li>
+                            <a href="{% url 'index' %}">Home</a>
+                        </li>
+                        <li class="active">Employee Details</li>
+                    </ol>
+
+                    {% if user_type == 5 %}
+                    <div class="text-right" style="padding-bottom:15px;">
+                        <a href="edit" class="btn btn-info"><i class="glyphicon glyphicon-edit"></i> Edit Details</a>
+                    </div>
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <th style="width:200px;">Code</th>
+                                        <td>{{employee.code}}</td>
+                                    </tr>
+                                    <tr>
+                                        <th> Name</th>
+                                        <td>{{employee.name}}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Department</th>
+                                        <td>{{employee.dept.name}}</td>
+                                    </tr>
+                             
+                                </tbody>
+                            </table>  
+                            <br>
+                                    </div>
+                        <div class="col-sm-6">
+                            <table class="table table-striped">
+                                <tbody>
+                                       <tr>
+                                        <th>Email</th>
+                                        <td>{{employee.email}}</td>
+                                    </tr>
+                                      <tr>
+                                        <th>Status</th>
+                                        <td>{% if employee.is_active %}
+                                                Active
+                                            {% else %}
+                                                Deleted
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                      <tr>
+                                        <th>Earned leave balance</th>
+                                        <td>{{employee.earned_balance}}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Half Pay leave balance </th>
+                                        <td>{{employee.hp_balance}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>  
+                        </div>
+                    </div>
+                </div>
+            
+            
+                 <div class="pull-left">
+                        {% if transaction_log.has_other_pages %}
+                        {% bootstrap_pagination transaction_log %}
+                        {% endif %}
+                    </div>
+               <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Date</th>
+                                <th>Reference</th>
+                                <th>Details</th>
+                                <th>EL Change</th>
+                                <th>EL Balance</th>
+                                <th>HPL Change</th>
+                                <th>HPL Balance</th>
+                               
+                            
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% if transaction_log %}
+                            {% for log in transaction_log %}
+                            <tr>
+
+                                <td>{{ forloop.counter0|add:transaction_log.start_index}} </td>
+                                <td>{{ log.time }}</td>
+                                <td>{% if log.is_admin %}
+                                        Admin
+                                    {% else %}
+                                        <a href="{% url 'details' log.application.pk %}">Application # {{log.application.pk}}</a>
+                                    {% endif %}
+                                </td>
+                                 <td>
+                                    {% if log.is_admin %}
+                                        {{ log.note }}      
+                                    {% else %}
+                                        {{ log.application.toText }}
+                                    {% endif %} 
+                                </td>
+                                <td>{{ log.earned_change }}</td>
+                                <td>{{ log.earned_balance }}</td>
+                                <td>{{ log.hp_change }}</td>
+                                <td>{{ log.hp_balance }}</td>
+                            
+                            </tr>
+                            {% endfor %}
+
+                        {% else %}
+                        <tr><td colspan="8">No applications yet.</td></tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+        </div>
+       {% endblock container %}
+    

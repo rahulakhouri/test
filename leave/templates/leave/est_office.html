@@ -1,0 +1,62 @@
+{% extends "leave/base.html" %}
+
+{% block container %}
+
+ <h2> Home - Est. Office </h2>
+
+	<div class="col-md-6">
+		<div class="list-group">
+		      <a href="{% url 'applications' %}" class="list-group-item">
+		        <h4 class="list-group-item-heading">Applications</h4>
+		        <p class="list-group-item-text">List of all leave applications </p>
+		      </a>
+		    
+		      <a href="{% url 'select_employee' %}" class="list-group-item">
+		        <h4 class="list-group-item-heading">Employee Search</h4>
+		        <p class="list-group-item-text">View details of all the employees</p>
+		      </a>
+
+		      <a href="{% url 'user_guide' %}" class="list-group-item">
+		        <h4 class="list-group-item-heading">User Guide</h4>
+		        <p class="list-group-item-text">Get help with using the application step by step.</p>
+		      </a>
+
+		       <a href="{% url 'logt' %}" class="list-group-item">
+		      	 <h4 class="list-group-item-heading">Log out</h4>
+		       	<p class="list-group-item-text">Log out of your account</p>
+
+		       </a>
+		</div>
+	</div>
+
+
+
+	<div class="col-md-5">
+		<ul class="list-group">
+			
+			{% if pending_count %}
+			<li class="list-group-item">
+				<span class="badge">{{pending_count}}</span>
+			 	<a href="{% url 'applications' '' %}" >{{pending_count}} leave   application{{pending_count|pluralize}}</a> waiting for action.
+			</li>
+			{% endif %}
+
+	
+		</ul>
+	</div>
+
+
+{% endblock container %}
+
+{% block script %}
+<script>
+	$('.list-group-item').on('mouseover', function( e ){
+		$(this).parents().children().removeClass("active");
+		$(this).addClass('active');
+	});
+
+	$('.list-group-item').on('mouseout', function( e ){
+		$(this).parents().children().removeClass("active");
+	});
+</script>
+{% endblock script %}

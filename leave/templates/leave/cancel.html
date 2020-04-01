@@ -1,0 +1,75 @@
+{% extends "leave/base.html" %}
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+        {% block container %}
+            <div class="row">
+                <div class="col-md-12">
+                    
+                    <h3>Cancel Approved Application  <a href="{% url 'details' application.pk %}" > #{{application.pk}} </a></h3>
+                    <ol class="breadcrumb">
+                        <li>
+                            <a href="{% url 'index' %}">Home</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'details' application.pk %}">Application Details</a>
+                        </li>
+                        <li class="active">Cancel Application</li>
+                    </ol>
+
+                    <p>Please fill the details for the cancellation request.</p>
+                    <form role="form" action="{% url 'cancel' application.pk %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                {% bootstrap_field form.reason %}
+                              
+                            </div>
+                            
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success btn-lg">Confirm Cancel Leave <i class="glyphicon glyphicon-chevron-right"></i></button>
+                    </form>
+
+                </div>
+            </div>
+        {% endblock container %}
+
+    {% block script %}
+        <script>
+            $(function() {
+
+                $('#id_leave_type, #id_employee').chosen({
+                    disable_search_threshold: 5,
+                });
+
+                $('#id_date_from, #id_date_to').attr('readonly', true).css({
+                    backgroundColor: '#ffffff',
+                    cursor: 'pointer',
+                });
+
+                $('#id_date_from, #id_date_to').datepicker({
+                    startDate: "today",
+                    todayHighlight: true
+                });
+
+                $('#id_attachment1, #id_attachment2, #id_attachment3').parents('.form-group').hide();
+
+                $('#add-attachment').on('click', function(event){
+                    event.preventDefault();
+
+                    if(!$('#id_attachment1').is(':visible')){
+                        $('#id_attachment1').parents('.form-group').show();
+                    }else if(!$('#id_attachment2').is(':visible'))
+                        $('#id_attachment2').parents('.form-group').show();
+                    else{
+                        $('#id_attachment3').parents('.form-group').show();
+                        $('#add-attachment').hide();
+                    }
+                });
+
+            });
+        </script>
+  {% endblock script %}
+
